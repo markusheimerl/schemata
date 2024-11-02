@@ -1,5 +1,5 @@
 # schemata
-Blueprints in Code, Circuits in Syntax
+Circuits in Syntax
 
 1. Install dependencies
 ```
