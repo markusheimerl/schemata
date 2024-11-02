@@ -1,36 +1,61 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include "circuit.h"
+
+FILE* dot_file;
+int yylex(void);
+void yyerror(const char *s);
 %}
 
-%token COMPONENT CONNECTION PROPERTY TYPE ID VALUE
+%union {
+    char* string;
+}
+
+%token COMPONENT CONNECTION PROPERTY
+%token <string> TYPE ID VALUE
 
 %%
-
-schematic: components connections ;
+schematic: {
+    dot_file = fopen("circuit.dot", "w");
+    start_graph(dot_file);
+} 
+components connections {
+    end_graph(dot_file);
+    fclose(dot_file);
+} ;
 
 components: component
           | components component ;
 
-component: COMPONENT TYPE ID properties ;
+component: COMPONENT TYPE ID properties {
+    add_component(dot_file, $2, $3);
+    free($2);  // Free allocated strings
+    free($3);
+} ;
 
 connections: connection
            | connections connection ;
 
-connection: CONNECTION ID ID ;
+connection: CONNECTION ID ID {
+    add_connection(dot_file, $2, $3);
+    free($2);  // Free allocated strings
+    free($3);
+} ;
 
 properties: property
           | properties property ;
 
-property: PROPERTY ID VALUE ;
-
+property: PROPERTY ID VALUE {
+    free($2);  // Free allocated strings
+    free($3);
+} ;
 %%
 
-int yyerror(const char *s) {
+void yyerror(const char *s) {
     fprintf(stderr, "Error: %s\n", s);
-    return 0;
 }
 
-int main() {
+int main(void) {
     return yyparse();
 }
