@@ -14,32 +14,34 @@ void yyerror(const char *s);
 }
 
 %token COMPONENT CONNECTION PROPERTY
-%token <string> TYPE ID VALUE PIN
+%token <string> TYPE ID VALUE PIN PROP_NAME
 
 %%
 schematic: {
     dot_file = fopen("circuit.dot", "w");
     start_graph(dot_file);
 } 
-components connections {
+statements {
     end_graph(dot_file);
     fclose(dot_file);
 } ;
 
-components: component
-          | components component ;
+statements: statement
+         | statements statement
+         ;
 
-component: COMPONENT TYPE ID properties {
+statement: component_decl
+        | connection_decl
+        | property_decl
+        ;
+
+component_decl: COMPONENT TYPE ID {
     add_component(dot_file, $2, $3);
     free($2);
     free($3);
 } ;
 
-connections: connection
-           | connections connection ;
-
-connection: CONNECTION ID PIN ID PIN {
-    // Parse component and pin identifiers
+connection_decl: CONNECTION ID PIN ID PIN {
     add_connection(dot_file, $2, $3, $4, $5);
     free($2);
     free($3);
@@ -47,10 +49,8 @@ connection: CONNECTION ID PIN ID PIN {
     free($5);
 } ;
 
-properties: property
-          | properties property ;
-
-property: PROPERTY ID VALUE {
+property_decl: PROPERTY PROP_NAME VALUE {
+    // Store properties if needed
     free($2);
     free($3);
 } ;
