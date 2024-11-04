@@ -10,14 +10,14 @@ void start_graph(FILE* fp) {
 
 void add_component(FILE* fp, const char* type, const char* id) {
     if (strcmp(type, "transistor") == 0) {
-        // Special case for transistors with 3 pins
+        // Modified transistor case - single pin1 spanning both rows
         fprintf(fp, "  %s [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\">\n", id);
-        fprintf(fp, "    <tr><td port=\"pin1\">1</td><td rowspan=\"2\">%s<br/>%s</td><td port=\"pin2\">2</td></tr>\n",
+        fprintf(fp, "    <tr><td port=\"pin1\" rowspan=\"2\">1</td><td rowspan=\"2\">%s<br/>%s</td><td port=\"pin2\">2</td></tr>\n",
                 id, type);
-        fprintf(fp, "    <tr><td></td><td port=\"pin3\">3</td></tr>\n");
+        fprintf(fp, "    <tr><td port=\"pin3\">3</td></tr>\n");
         fprintf(fp, "    </table>>];\n");
     } else {
-        // Standard 2-pin components
+        // Standard 2-pin components remain unchanged
         fprintf(fp, "  %s [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\">\n", id);
         fprintf(fp, "    <tr><td port=\"pin1\">1</td><td>%s<br/>%s</td><td port=\"pin2\">2</td></tr>\n",
                 id, type);
